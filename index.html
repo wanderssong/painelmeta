@@ -6,21 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Relatório de Tráfego Meta</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --bg-1: #040b18;
             --bg-2: #081427;
             --bg-3: #0d1d36;
-            --panel: rgba(10, 22, 43, .78);
             --stroke: rgba(255, 255, 255, .08);
             --text: #eef5ff;
             --muted: #96a8ca;
-            --blue: #4ea6ff;
-            --cyan: #57e3ff;
-            --violet: #9a6bff;
-            --green: #72f3b0;
-            --orange: #ffb14f;
-            --pink: #ff6aca;
             --shadow: 0 22px 70px rgba(0, 0, 0, .45);
         }
 
@@ -98,13 +92,20 @@
             min-height: 102px;
             display: flex;
             align-items: center;
-            padding: 24px 18px;
-            font-weight: 900;
-            font-size: 1.05rem;
+            justify-content: center;
+            padding: 18px;
             background: linear-gradient(135deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .03));
             border-bottom: 1px solid rgba(255, 255, 255, .06);
             clip-path: polygon(0 0, 100% 0, 84% 100%, 0 100%);
-            letter-spacing: .2px;
+        }
+
+        .logo-box img {
+            max-width: 140px;
+            max-height: 56px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .22));
         }
 
         .nav {
@@ -265,12 +266,6 @@
             font-weight: 600
         }
 
-        .select option:checked {
-            background: #2f6cff;
-            color: #fff;
-            font-weight: 800
-        }
-
         .upload-bar {
             display: grid;
             grid-template-columns: 1fr auto auto;
@@ -335,11 +330,21 @@
         .file-label:hover,
         .btn-input:hover {
             border-color: rgba(120, 180, 255, .45);
-            box-shadow: 0 0 0 2px rgba(80, 150, 255, .12);
+            box-shadow: 0 0 0 2px rgba(80, 150, 255, .12)
         }
 
         .file-input {
             display: none
+        }
+
+        .compare-status {
+            color: var(--muted);
+            font-size: .88rem;
+            font-weight: 700
+        }
+
+        .compare-status strong {
+            color: var(--text)
         }
 
         .stats-grid {
@@ -431,6 +436,10 @@
             color: #ff7d98
         }
 
+        .delta.flat {
+            color: var(--muted)
+        }
+
         .kpi-sub {
             display: block;
             margin-top: 8px;
@@ -489,7 +498,7 @@
             display: grid;
             grid-template-columns: 1.45fr 1fr .95fr;
             gap: 18px;
-            align-items: start;
+            align-items: start
         }
 
         .left-col,
@@ -757,13 +766,15 @@
             margin-bottom: 12px
         }
 
-        .insight-box ul {
+        .insight-box ul,
+        .summary-list {
             list-style: none;
             display: grid;
             gap: 12px
         }
 
-        .insight-box li {
+        .insight-box li,
+        .summary-list li {
             display: flex;
             align-items: flex-start;
             gap: 8px;
@@ -836,20 +847,69 @@
             flex-wrap: wrap;
         }
 
-        .section-anim {
-            animation: fadeUp .35s ease
+        .pdf-mode {
+            background: #fff !important
         }
 
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px)
-            }
+        .pdf-mode body,
+        .pdf-mode .app,
+        .pdf-mode .main {
+            background: #fff !important;
+            box-shadow: none !important
+        }
 
-            to {
-                opacity: 1;
-                transform: translateY(0)
-            }
+        .pdf-mode .sidebar,
+        .pdf-mode .upload-bar,
+        .pdf-mode .filters {
+            display: none !important
+        }
+
+        .pdf-mode .shell {
+            display: block !important;
+            min-height: auto !important
+        }
+
+        .pdf-mode .app {
+            width: 100% !important;
+            margin: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+        }
+
+        .pdf-mode .card,
+        .pdf-mode .panel-card,
+        .pdf-mode .mini-card,
+        .pdf-mode .insight-box {
+            background: #fff !important;
+            color: #111 !important;
+            border: 1px solid #d7deea !important;
+            box-shadow: none !important;
+        }
+
+        .pdf-mode .page-title,
+        .pdf-mode .panel-header h2,
+        .pdf-mode .stat-head h3,
+        .pdf-mode .money,
+        .pdf-mode .roas,
+        .pdf-mode .metric-value,
+        .pdf-mode .metric-trend,
+        .pdf-mode thead th,
+        .pdf-mode tbody td,
+        .pdf-mode .client-line,
+        .pdf-mode .summary-list li {
+            color: #111 !important;
+        }
+
+        .pdf-mode .kpi-sub,
+        .pdf-mode .sub,
+        .pdf-mode .footer-note,
+        .pdf-mode .delta,
+        .pdf-mode .metric-trend {
+            color: #555 !important;
+        }
+
+        .pdf-mode .footer-note {
+            display: none !important
         }
 
         @media (max-width:1360px) {
@@ -859,10 +919,6 @@
 
             .content-grid {
                 grid-template-columns: 1fr
-            }
-
-            .right-col {
-                grid-template-columns: repeat(2, 1fr)
             }
         }
 
@@ -882,7 +938,7 @@
             }
 
             .nav {
-                grid-template-columns: repeat(5, 1fr);
+                grid-template-columns: repeat(4, 1fr);
                 padding: 14px
             }
 
@@ -900,10 +956,6 @@
 
             .filters {
                 justify-content: flex-start
-            }
-
-            .right-col {
-                grid-template-columns: 1fr
             }
 
             .upload-bar {
@@ -957,84 +1009,14 @@
                 height: 58px
             }
         }
-
-        @media print {
-            body {
-                background: #fff;
-                color: #111
-            }
-
-            body::before,
-            body::after,
-            .sidebar,
-            .upload-bar,
-            .filters,
-            .btn-input {
-                display: none !important
-            }
-
-            .app {
-                box-shadow: none;
-                border: none;
-                width: 100%;
-                margin: 0;
-                border-radius: 0;
-                background: #fff
-            }
-
-            .shell {
-                display: block;
-                min-height: auto
-            }
-
-            .main {
-                background: #fff;
-                padding: 0
-            }
-
-            .card,
-            .panel-card,
-            .mini-card {
-                background: #fff;
-                color: #111;
-                border: 1px solid #ddd;
-                box-shadow: none
-            }
-
-            .page-title,
-            .panel-header h2,
-            .stat-head h3,
-            .money,
-            .roas,
-            .metric-value,
-            .metric-trend,
-            thead th,
-            tbody td,
-            .client-line {
-                color: #111 !important
-            }
-
-            .footer-note {
-                display: none
-            }
-
-            .nav,
-            .logo-box {
-                display: none !important
-            }
-
-            .page-break {
-                break-before: page
-            }
-        }
     </style>
 </head>
 
 <body>
-    <div class="app">
+    <div class="app" id="appRoot">
         <div class="shell">
             <aside class="sidebar">
-                <div class="logo-box">Relatório Meta</div>
+                <div class="logo-box"><img src="https://startse-uploader.s3.us-east-2.amazonaws.com/medium_meta_logo_canva_3687a435b8.png" alt="Logo do cliente"></div>
                 <nav class="nav">
                     <button class="nav-btn active" data-view="dashboard"><i>🏠</i><span>Dashboard</span></button>
                     <button class="nav-btn" data-view="campanhas"><i>📈</i><span>Campanhas</span></button>
@@ -1052,37 +1034,33 @@
                     <div class="filters">
                         <button class="btn-input" id="clientNameBtn">✏️ Nome do Cliente</button>
                         <div class="filter-wrap">
-                            <select class="select">
+                            <select class="select" id="periodSelect">
                                 <option>Últimos 30 Dias</option>
                                 <option>Últimos 7 Dias</option>
                                 <option>Este Mês</option>
                                 <option>Mês Passado</option>
                             </select>
                         </div>
-                        <div class="filter-wrap">
-                            <select class="select">
-                                <option>Comparativo: Último Mês</option>
-                                <option>Comparativo: Últimos 7 Dias</option>
-                                <option>Sem Comparativo</option>
-                            </select>
-                        </div>
                     </div>
                 </section>
 
-                <section class="upload-bar section-anim">
+                <section class="upload-bar">
                     <div class="upload-info">
                         <strong>Importação de relatório</strong>
-                        <span>Carregue o CSV da Meta e gere o PDF final do cliente.</span>
+                        <span>Carregue o CSV atual. Se quiser comparar, carregue também um segundo CSV.</span>
                     </div>
                     <div class="upload-actions">
-                        <label class="file-label" for="csvInput">📁 Importar CSV</label>
+                        <label class="file-label" for="csvInput">📁 CSV atual</label>
                         <input id="csvInput" class="file-input" type="file" accept=".csv" />
+                        <label class="file-label" for="csvCompareInput">📁 CSV comparativo</label>
+                        <input id="csvCompareInput" class="file-input" type="file" accept=".csv" />
                         <button class="btn-primary" id="exportPdfBtn">📄 Gerar PDF</button>
                     </div>
-                    <button class="btn-secondary" id="loadDemoBtn">⚡ Carregar demo</button>
+                    <div class="compare-status" id="compareStatus"><strong>Comparação:</strong> sem arquivo comparativo
+                    </div>
                 </section>
 
-                <section id="view-dashboard" class="view section-anim">
+                <section id="view-dashboard" class="view">
                     <section class="stats-grid">
                         <article class="card orange">
                             <div class="stat-head">
@@ -1091,7 +1069,7 @@
                             </div>
                             <div class="stat-value">
                                 <div class="stat-number" id="kpi-invest">R$ 0,00</div>
-                                <div class="delta up" id="delta-invest">—</div>
+                                <div class="delta flat" id="delta-invest">Sem comparação</div>
                             </div>
                             <span class="kpi-sub">Total investido no período</span>
                             <div class="bottom-light"></div>
@@ -1103,7 +1081,7 @@
                             </div>
                             <div class="stat-value">
                                 <div class="stat-number" id="kpi-reach">0</div>
-                                <div class="delta up" id="delta-reach">—</div>
+                                <div class="delta flat" id="delta-reach">Sem comparação</div>
                             </div>
                             <span class="kpi-sub">Pessoas alcançadas</span>
                             <div class="bottom-light"></div>
@@ -1115,7 +1093,7 @@
                             </div>
                             <div class="stat-value">
                                 <div class="stat-number" id="kpi-clicks">0</div>
-                                <div class="delta up" id="delta-clicks">—</div>
+                                <div class="delta flat" id="delta-clicks">Sem comparação</div>
                             </div>
                             <span class="kpi-sub">Cliques no link</span>
                             <div class="bottom-light"></div>
@@ -1127,7 +1105,7 @@
                             </div>
                             <div class="stat-value">
                                 <div class="stat-number" id="kpi-results">0</div>
-                                <div class="delta up" id="delta-results">—</div>
+                                <div class="delta flat" id="delta-results">Sem comparação</div>
                             </div>
                             <span class="kpi-sub">Resultados consolidados</span>
                             <div class="bottom-light"></div>
@@ -1139,7 +1117,7 @@
                             </div>
                             <div class="stat-value">
                                 <div class="stat-number" id="kpi-impressions">0</div>
-                                <div class="delta up" id="delta-impressions">—</div>
+                                <div class="delta flat" id="delta-impressions">Sem comparação</div>
                             </div>
                             <span class="kpi-sub">Exibições dos anúncios</span>
                             <div class="bottom-light"></div>
@@ -1189,21 +1167,21 @@
                                     <div class="label">CPC</div>
                                     <div class="metric-row">
                                         <div class="metric-value" id="metricCpc">R$ 0,00</div>
-                                        <div class="metric-trend" id="trendCpc">—</div>
+                                        <div class="metric-trend delta flat" id="trendCpc">Sem comparação</div>
                                     </div>
                                 </article>
                                 <article class="mini-card cyan">
                                     <div class="label">CTR</div>
                                     <div class="metric-row">
                                         <div class="metric-value" id="metricCtr">0,00%</div>
-                                        <div class="metric-trend" id="trendCtr">—</div>
+                                        <div class="metric-trend delta flat" id="trendCtr">Sem comparação</div>
                                     </div>
                                 </article>
                                 <article class="mini-card orange">
                                     <div class="label">Custo por Resultado</div>
                                     <div class="metric-row">
                                         <div class="metric-value" id="metricCpl">R$ 0,00</div>
-                                        <div class="metric-trend" id="trendCpl">—</div>
+                                        <div class="metric-trend delta flat" id="trendCpl">Sem comparação</div>
                                     </div>
                                 </article>
                             </div>
@@ -1261,7 +1239,7 @@
                     </section>
                 </section>
 
-                <section id="view-campanhas" class="view hidden-view section-anim">
+                <section id="view-campanhas" class="view hidden-view">
                     <article class="panel-card">
                         <div class="panel-header">
                             <div>
@@ -1284,7 +1262,7 @@
                     </article>
                 </section>
 
-                <section id="view-funil" class="view hidden-view section-anim">
+                <section id="view-funil" class="view hidden-view">
                     <article class="panel-card">
                         <div class="panel-header">
                             <div>
@@ -1317,7 +1295,7 @@
                     </article>
                 </section>
 
-                <section id="view-relatorios" class="view hidden-view section-anim">
+                <section id="view-relatorios" class="view hidden-view">
                     <article class="panel-card">
                         <div class="panel-header">
                             <div>
@@ -1325,9 +1303,7 @@
                                 <div class="sub">Síntese do período</div>
                             </div>
                         </div>
-                        <div class="insight-box">
-                            <ul id="reportSummaryList"></ul>
-                        </div>
+                        <ul class="summary-list" id="reportSummaryList"></ul>
                     </article>
                 </section>
 
@@ -1342,6 +1318,8 @@
     <script>
         const navButtons = document.querySelectorAll('.nav-btn');
         const views = document.querySelectorAll('.view');
+        let currentData = null;
+        let compareData = null;
 
         function showView(viewName) {
             views.forEach(view => {
@@ -1358,8 +1336,9 @@
         function formatPercent(v) { return `${Number(v || 0).toFixed(2).replace('.', ',')}%`; }
 
         function animateCounter(el, target, mode = 'number') {
+            if (!el) return;
             const startTime = performance.now();
-            const duration = 1000;
+            const duration = 700;
             const from = 0;
             function frame(now) {
                 const progress = Math.min((now - startTime) / duration, 1);
@@ -1370,6 +1349,23 @@
                 if (progress < 1) requestAnimationFrame(frame);
             }
             requestAnimationFrame(frame);
+        }
+        function setText(id, value) { const el = document.getElementById(id); if (el) el.textContent = value; }
+
+        function setDelta(id, current, previous, inverse = false) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (previous == null || previous === 0) {
+                el.textContent = 'Sem comparação';
+                el.className = (el.className.includes('metric-trend') ? 'metric-trend ' : 'delta ') + 'flat';
+                return;
+            }
+            const pct = ((current - previous) / previous) * 100;
+            const positive = inverse ? pct <= 0 : pct >= 0;
+            const tone = pct === 0 ? 'flat' : positive ? 'up' : 'down';
+            const symbol = pct === 0 ? '■' : pct > 0 ? '▲' : '▼';
+            el.textContent = `${symbol} ${Math.abs(pct).toFixed(1).replace('.', ',')}%`;
+            el.className = (el.className.includes('metric-trend') ? 'metric-trend ' : 'delta ') + tone;
         }
 
         const chartCtx = document.getElementById('revenueChart').getContext('2d');
@@ -1401,9 +1397,55 @@
             }
         });
 
-        function setText(id, value) { const el = document.getElementById(id); if (el) el.textContent = value; }
+        function renderTables(campaigns) {
+            const body = document.getElementById('campaignTableBody');
+            const full = document.getElementById('campaignsFullBody');
+            body.innerHTML = '';
+            full.innerHTML = '';
+            const sorted = [...campaigns].sort((a, b) => b.spend - a.spend);
+
+            sorted.slice(0, 5).forEach((c, index) => {
+                const badgeClass = index === 0 ? 'badge-good' : index === 1 ? 'badge-mid' : 'badge-low';
+                const indicator = c.results > 0 ? formatCurrency(c.costPerResult) : '—';
+                body.innerHTML += `<tr><td>${c.name}</td><td>${formatCurrency(c.spend)}</td><td>${formatNumber(c.results)}</td><td class="${badgeClass}">${indicator}</td></tr>`;
+            });
+
+            sorted.forEach(c => {
+                full.innerHTML += `<tr><td>${c.name}</td><td>${formatCurrency(c.spend)}</td><td>${formatNumber(c.results)}</td><td>${formatNumber(c.clicks)}</td><td>${formatCurrency(c.costPerResult)}</td></tr>`;
+            });
+        }
+
+        function renderInsights(campaigns, data) {
+            const good = document.getElementById('insightGoodList');
+            const improve = document.getElementById('insightImproveList');
+            const report = document.getElementById('reportSummaryList');
+            good.innerHTML = '';
+            improve.innerHTML = '';
+            report.innerHTML = '';
+
+            const bySpend = [...campaigns].sort((a, b) => b.spend - a.spend);
+            const byCost = [...campaigns].filter(c => c.results > 0).sort((a, b) => a.costPerResult - b.costPerResult);
+            const topSpend = bySpend[0];
+            const bestCost = byCost[0];
+            const worstCost = byCost[byCost.length - 1];
+
+            if (topSpend) good.innerHTML += `<li><span class="ok">✔</span> Maior investimento em <strong>${topSpend.name}</strong>, com ${formatCurrency(topSpend.spend)}.</li>`;
+            if (bestCost) good.innerHTML += `<li><span class="ok">✔</span> Melhor custo por resultado em <strong>${bestCost.name}</strong>, com ${formatCurrency(bestCost.costPerResult)}.</li>`;
+            if (worstCost) improve.innerHTML += `<li><span class="warn">↗</span> Revisar <strong>${worstCost.name}</strong>, custo por resultado em ${formatCurrency(worstCost.costPerResult)}.</li>`;
+            if (topSpend) improve.innerHTML += `<li><span class="up">⬆</span> Avaliar escala gradual em <strong>${topSpend.name}</strong>.</li>`;
+
+            report.innerHTML += `<li><span class="ok">✔</span> Investimento total de ${formatCurrency(data.spend)} no período analisado.</li>`;
+            report.innerHTML += `<li><span class="ok">✔</span> Alcance de ${formatNumber(data.reach)} pessoas e ${formatNumber(data.clicks)} cliques no link.</li>`;
+            report.innerHTML += `<li><span class="ok">✔</span> Volume consolidado de ${formatNumber(data.results)} resultados, com CTR média de ${formatPercent(data.ctr)}.</li>`;
+            if (compareData) {
+                const pct = compareData.results ? ((data.results - compareData.results) / compareData.results) * 100 : 0;
+                report.innerHTML += `<li><span class="ok">✔</span> Na comparação com o outro período, os resultados variaram ${Math.abs(pct).toFixed(1).replace('.', ',')}%.</li>`;
+            }
+        }
 
         function applyDashboardData(data) {
+            currentData = data;
+
             animateCounter(document.getElementById('kpi-invest'), data.spend, 'currency');
             animateCounter(document.getElementById('kpi-reach'), data.reach, 'number');
             animateCounter(document.getElementById('kpi-clicks'), data.clicks, 'number');
@@ -1431,71 +1473,15 @@
 
             renderTables(data.campaigns);
             renderInsights(data.campaigns, data);
-            updateDeltas(data);
-        }
 
-        function updateDeltas(data) {
-            setText('delta-invest', data.compare.invest);
-            setText('delta-reach', data.compare.reach);
-            setText('delta-clicks', data.compare.clicks);
-            setText('delta-results', data.compare.results);
-            setText('delta-impressions', data.compare.impressions);
-            setText('trendCpc', data.compare.cpc);
-            setText('trendCtr', data.compare.ctr);
-            setText('trendCpl', data.compare.cpl);
-        }
-
-        function renderTables(campaigns) {
-            const body = document.getElementById('campaignTableBody');
-            const full = document.getElementById('campaignsFullBody');
-            body.innerHTML = '';
-            full.innerHTML = '';
-
-            const sorted = [...campaigns].sort((a, b) => b.spend - a.spend);
-            sorted.slice(0, 5).forEach((c, index) => {
-                const badgeClass = index === 0 ? 'badge-good' : index === 1 ? 'badge-mid' : 'badge-low';
-                const indicator = c.results > 0 ? formatCurrency(c.costPerResult) : '—';
-                body.innerHTML += `<tr>
-          <td>${c.name}</td>
-          <td>${formatCurrency(c.spend)}</td>
-          <td>${formatNumber(c.results)}</td>
-          <td class="${badgeClass}">${indicator}</td>
-        </tr>`;
-            });
-
-            sorted.forEach(c => {
-                full.innerHTML += `<tr>
-          <td>${c.name}</td>
-          <td>${formatCurrency(c.spend)}</td>
-          <td>${formatNumber(c.results)}</td>
-          <td>${formatNumber(c.clicks)}</td>
-          <td>${formatCurrency(c.costPerResult)}</td>
-        </tr>`;
-            });
-        }
-
-        function renderInsights(campaigns, data) {
-            const good = document.getElementById('insightGoodList');
-            const improve = document.getElementById('insightImproveList');
-            const report = document.getElementById('reportSummaryList');
-            good.innerHTML = '';
-            improve.innerHTML = '';
-            report.innerHTML = '';
-
-            const bySpend = [...campaigns].sort((a, b) => b.spend - a.spend);
-            const byCost = [...campaigns].filter(c => c.results > 0).sort((a, b) => a.costPerResult - b.costPerResult);
-            const topSpend = bySpend[0];
-            const bestCost = byCost[0];
-            const worstCost = byCost[byCost.length - 1];
-
-            if (topSpend) good.innerHTML += `<li><span class="ok">✔</span> Maior investimento em <strong>${topSpend.name}</strong>, com ${formatCurrency(topSpend.spend)}.</li>`;
-            if (bestCost) good.innerHTML += `<li><span class="ok">✔</span> Melhor custo por resultado em <strong>${bestCost.name}</strong>, com ${formatCurrency(bestCost.costPerResult)}.</li>`;
-            if (worstCost) improve.innerHTML += `<li><span class="warn">↗</span> Revisar <strong>${worstCost.name}</strong>, custo por resultado em ${formatCurrency(worstCost.costPerResult)}.</li>`;
-            if (topSpend) improve.innerHTML += `<li><span class="up">⬆</span> Avaliar escala gradual em <strong>${topSpend.name}</strong>.</li>`;
-
-            report.innerHTML += `<li><span class="ok">✔</span> Investimento total de ${formatCurrency(data.spend)} no período analisado.</li>`;
-            report.innerHTML += `<li><span class="ok">✔</span> Alcance de ${formatNumber(data.reach)} pessoas e ${formatNumber(data.clicks)} cliques no link.</li>`;
-            report.innerHTML += `<li><span class="ok">✔</span> Volume consolidado de ${formatNumber(data.results)} resultados, com CTR média de ${formatPercent(data.ctr)}.</li>`;
+            setDelta('delta-invest', data.spend, compareData?.spend);
+            setDelta('delta-reach', data.reach, compareData?.reach);
+            setDelta('delta-clicks', data.clicks, compareData?.clicks);
+            setDelta('delta-results', data.results, compareData?.results);
+            setDelta('delta-impressions', data.impressions, compareData?.impressions);
+            setDelta('trendCpc', data.cpc, compareData?.cpc, true);
+            setDelta('trendCtr', data.ctr, compareData?.ctr);
+            setDelta('trendCpl', data.cpl, compareData?.cpl, true);
         }
 
         function detectDelimiter(text) {
@@ -1523,20 +1509,12 @@
             return result.map(v => v.trim());
         }
 
-        function parseNumberBr(value) {
+        function parseNumberFlexible(value) {
             if (value === null || value === undefined) return 0;
             let s = String(value).trim();
             if (!s) return 0;
             s = s.replace(/R\$/gi, '').replace(/%/g, '').replace(/\s/g, '');
-
-            const hasComma = s.includes(',');
-            const hasDot = s.includes('.');
-
-            if (hasComma) {
-                s = s.replace(/\./g, '').replace(/,/g, '.');
-            } else if (hasDot) {
-            }
-
+            if (s.includes(',')) s = s.replace(/\./g, '').replace(/,/g, '.');
             const num = parseFloat(s);
             return Number.isFinite(num) ? num : 0;
         }
@@ -1544,7 +1522,6 @@
         function normalizeHeader(h) {
             return String(h || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
         }
-
         function findIndex(headers, candidates) {
             const normalized = headers.map(normalizeHeader);
             for (const cand of candidates) {
@@ -1577,12 +1554,12 @@
                 const name = idxName >= 0 ? row[idxName] : '';
                 if (!name || /^total/i.test(name)) continue;
 
-                const spend = idxSpend >= 0 ? parseNumberBr(row[idxSpend]) : 0;
-                const results = idxResults >= 0 ? parseNumberBr(row[idxResults]) : 0;
-                const clicks = idxClicks >= 0 ? parseNumberBr(row[idxClicks]) : 0;
-                const reach = idxReach >= 0 ? parseNumberBr(row[idxReach]) : 0;
-                const impressions = idxImp >= 0 ? parseNumberBr(row[idxImp]) : 0;
-                const costPerResult = idxCostPerResult >= 0 ? parseNumberBr(row[idxCostPerResult]) : (results > 0 ? spend / results : 0);
+                const spend = idxSpend >= 0 ? parseNumberFlexible(row[idxSpend]) : 0;
+                const results = idxResults >= 0 ? parseNumberFlexible(row[idxResults]) : 0;
+                const clicks = idxClicks >= 0 ? parseNumberFlexible(row[idxClicks]) : 0;
+                const reach = idxReach >= 0 ? parseNumberFlexible(row[idxReach]) : 0;
+                const impressions = idxImp >= 0 ? parseNumberFlexible(row[idxImp]) : 0;
+                const costPerResult = idxCostPerResult >= 0 ? parseNumberFlexible(row[idxCostPerResult]) : (results > 0 ? spend / results : 0);
 
                 totalSpend += spend;
                 totalResults += results;
@@ -1600,7 +1577,6 @@
             const cpl = totalResults > 0 ? totalSpend / totalResults : 0;
             const revenue = totalSpend * 3.8;
             const roas = totalSpend > 0 ? revenue / totalSpend : 0;
-
             const chartRevenue = Array.from({ length: 10 }, (_, i) => Number(((revenue / 10) * (i + 1) / 1.8).toFixed(2)));
             const chartRoas = Array.from({ length: 10 }, (_, i) => Number((roas * ((i + 1) / 2.4)).toFixed(2)));
 
@@ -1610,63 +1586,49 @@
                 clicks: totalClicks,
                 results: totalResults,
                 impressions: totalImp || Math.round(totalClicks * 7),
-                cpc, ctr, cpl, revenue, roas,
-                campaigns,
-                chartRevenue,
-                chartRoas,
-                compare: {
-                    invest: '↑',
-                    reach: '↑',
-                    clicks: '↑',
-                    results: '↑',
-                    impressions: '↑',
-                    cpc: '—',
-                    ctr: '—',
-                    cpl: '—'
-                }
+                cpc, ctr, cpl, revenue, roas, campaigns, chartRevenue, chartRoas
             };
         }
 
-        document.getElementById('csvInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
+        async function handleCsvLoad(input, kind) {
+            const file = input.files[0];
             if (!file) return;
-            const text = await file.text();
             try {
+                const text = await file.text();
                 const data = parseMetaCsv(text);
-                applyDashboardData(data);
-                showView('dashboard');
+                if (kind === 'compare') {
+                    compareData = data;
+                    document.getElementById('compareStatus').innerHTML = '<strong>Comparação:</strong> arquivo comparativo carregado';
+                    if (currentData) applyDashboardData(currentData);
+                } else {
+                    currentData = data;
+                    applyDashboardData(currentData);
+                    showView('dashboard');
+                }
             } catch (err) {
-                alert('Não foi possível ler esse CSV. Exporte o relatório da Meta com colunas como campanha, valor usado, resultados, cliques, alcance e impressões.');
+                alert(kind === 'compare' ? 'Não foi possível ler o CSV comparativo.' : 'Não foi possível ler esse CSV.');
                 console.error(err);
             }
-        });
+        }
 
-        document.getElementById('exportPdfBtn').addEventListener('click', () => window.print());
-        document.getElementById('loadDemoBtn').addEventListener('click', () => {
-            const demo = {
-                spend: 1099.68,
-                reach: 136237,
-                clicks: 2390,
-                results: 2372,
-                impressions: 183091,
-                cpc: 0.46,
-                ctr: 1.31,
-                cpl: 0.46,
-                revenue: 4178.78,
-                roas: 3.80,
-                campaigns: [
-                    { name: 'Quarta do Horti Frut', spend: 122.96, results: 240, clicks: 302, reach: 16300, impressions: 21500, costPerResult: 0.51 },
-                    { name: 'Quarta do Horti Vindilina', spend: 115.36, results: 221, clicks: 280, reach: 15100, impressions: 20400, costPerResult: 0.52 },
-                    { name: 'Quarta do Horti Sibi', spend: 106.80, results: 214, clicks: 267, reach: 14400, impressions: 19700, costPerResult: 0.50 },
-                    { name: 'Final de Semana Sibi', spend: 96.32, results: 185, clicks: 251, reach: 13000, impressions: 17800, costPerResult: 0.52 },
-                    { name: 'Carnes Atacado Sibi', spend: 70.83, results: 111, clicks: 164, reach: 9500, impressions: 12900, costPerResult: 0.64 }
-                ],
-                chartRevenue: [210, 320, 380, 420, 460, 510, 560, 620, 700, 780],
-                chartRoas: [0.8, 1.2, 1.6, 1.8, 2.2, 2.5, 2.9, 3.1, 3.5, 3.8],
-                compare: { invest: '↑', reach: '↑', clicks: '↑', results: '↑', impressions: '↑', cpc: '—', ctr: '—', cpl: '—' }
-            };
-            applyDashboardData(demo);
-            showView('dashboard');
+        document.getElementById('csvInput').addEventListener('change', (e) => handleCsvLoad(e.target, 'current'));
+        document.getElementById('csvCompareInput').addEventListener('change', (e) => handleCsvLoad(e.target, 'compare'));
+
+        document.getElementById('exportPdfBtn').addEventListener('click', async () => {
+            const app = document.getElementById('appRoot');
+            document.body.classList.add('pdf-mode');
+            try {
+                await html2pdf().set({
+                    margin: [8, 8, 8, 8],
+                    filename: 'Relatorio_de_Trafego_Meta.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['css', 'legacy'] }
+                }).from(app).save();
+            } finally {
+                document.body.classList.remove('pdf-mode');
+            }
         });
 
         document.getElementById('clientNameBtn').addEventListener('click', () => {
@@ -1678,13 +1640,12 @@
             }
         });
 
-        const periodSelect = document.querySelectorAll('.select')[0];
+        const periodSelect = document.getElementById('periodSelect');
         periodSelect.addEventListener('change', () => {
             document.getElementById('footerPeriod').textContent = periodSelect.value;
         });
         document.getElementById('footerPeriod').textContent = periodSelect.value;
-
-        document.getElementById('loadDemoBtn').click();
+        document.getElementById('compareStatus').innerHTML = '<strong>Comparação:</strong> sem arquivo comparativo';
     </script>
 </body>
 
