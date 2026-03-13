@@ -912,6 +912,120 @@
             display: none !important
         }
 
+
+        .pdf-mode .topbar {
+            display: block !important;
+            padding: 14px 16px !important;
+            margin-bottom: 10px !important;
+            background: #fff !important;
+            border: 1px solid #d7deea !important;
+            box-shadow: none !important;
+        }
+
+        .pdf-mode .title-wrap {
+            gap: 4px !important;
+        }
+
+        .pdf-mode .page-title {
+            font-size: 28px !important;
+            padding-bottom: 6px !important;
+            margin-bottom: 2px !important;
+        }
+
+        .pdf-mode .page-title::after {
+            width: 150px !important;
+            background: #8fb8ff !important;
+            box-shadow: none !important;
+        }
+
+        .pdf-mode .stats-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 10px !important;
+            margin-bottom: 10px !important;
+        }
+
+        .pdf-mode .content-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+        }
+
+        .pdf-mode .left-col,
+        .pdf-mode .mid-col,
+        .pdf-mode .right-col {
+            gap: 10px !important;
+        }
+
+        .pdf-mode .mini-metrics {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 10px !important;
+        }
+
+        .pdf-mode .chart-canvas-box {
+            height: 220px !important;
+        }
+
+        .pdf-mode .funnel-wrap {
+            min-height: 300px !important;
+            padding: 10px 0 0 !important;
+        }
+
+        .pdf-mode .ring-1 {
+            height: 90px !important;
+        }
+
+        .pdf-mode .ring-2 {
+            height: 78px !important;
+        }
+
+        .pdf-mode .ring-3 {
+            height: 66px !important;
+        }
+
+        .pdf-mode .ring-4 {
+            height: 56px !important;
+        }
+
+        .pdf-mode .panel-card,
+        .pdf-mode .card,
+        .pdf-mode .mini-card,
+        .pdf-mode .insight-box {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        .pdf-mode table {
+            width: 100% !important;
+            table-layout: fixed !important;
+        }
+
+        .pdf-mode thead th,
+        .pdf-mode tbody td {
+            font-size: 12px !important;
+            padding: 8px 6px !important;
+            white-space: normal !important;
+            overflow-wrap: anywhere !important;
+        }
+
+        .pdf-mode .stat-number {
+            font-size: 24px !important;
+        }
+
+        .pdf-mode .money {
+            font-size: 40px !important;
+        }
+
+        .pdf-mode .metric-value {
+            font-size: 20px !important;
+        }
+
+        .pdf-mode .insight-box {
+            margin-bottom: 10px !important;
+        }
+
+        .pdf-mode .footer-note {
+            display: none !important;
+        }
+
         @media (max-width:1360px) {
             .stats-grid {
                 grid-template-columns: repeat(3, 1fr)
@@ -1620,11 +1734,11 @@
             try {
                 await html2pdf().set({
                     margin: [8, 8, 8, 8],
-                    filename: 'Relatorio_de_Trafego_Meta.pdf',
+                    filename: 'Relatorio_de_Trafego_Meta_melhorado.pdf',
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                    pagebreak: { mode: ['css', 'legacy'] }
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
                 }).from(app).save();
             } finally {
                 document.body.classList.remove('pdf-mode');
